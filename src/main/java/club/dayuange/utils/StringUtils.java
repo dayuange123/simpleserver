@@ -47,5 +47,11 @@ public class StringUtils {
         return trimmed.substring(splashIndex);
     }
 
+    public static String removeIfStartWith(String s, String start) {
+        if (s.startsWith(start)) {
+            return s.substring(start.length());
+        }
+        return s;
+    }
 
 }

@@ -5,12 +5,15 @@ import club.dayuange.server.WebServer;
 import io.netty.bootstrap.ServerBootstrap;
 import org.junit.Test;
 
+import java.net.URL;
+
 public class FirstTest {
+    ClassLoader c1 = getClass().getClassLoader();
     @Test
     public void test01() throws Exception {
 
-        WebApp app = new WebApp();
-        app.runApp();
+        URL url = c1.getResource("index.html");
+        System.out.println(url);
 
     }
 }

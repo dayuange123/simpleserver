@@ -10,6 +10,7 @@ public class WebApp {
     }
     public void runApp(){
         try {
+            //启动前的初始化
             Integer port = MainStartup.init(this.getClass().getClassLoader());
             WebServer.run(port);
         } catch (IOException e) {

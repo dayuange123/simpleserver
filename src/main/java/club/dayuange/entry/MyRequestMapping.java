@@ -1,6 +1,7 @@
 package club.dayuange.entry;
 
 import club.dayuange.annotation.PageEngine;
+import club.dayuange.annotation.RequestMethod;
 import io.netty.handler.codec.http.HttpRequest;
 
 
@@ -13,16 +14,17 @@ import java.util.Map.Entry;
 /**
  * URL映射实体
  */
-class MyRequestMapping {
+public class MyRequestMapping {
 	/**
 	 * 解析URL对应的类
 	 */
 	final Class<?> clazz;
 	/**
-	 * 类型
+	 * 对应的方法
 	 */
 	final Method method;
 
+	final RequestMethod requestMethod;
 	/**
 	 * 该方法的参数名
 	 */
@@ -32,11 +34,13 @@ class MyRequestMapping {
 	 */
 	final PageEngine engine;
 
-	MyRequestMapping(final Class<?> clazz, final Method method, final PageEngine engine,final String value) {
+	public MyRequestMapping(final Class<?> clazz, final Method method, final PageEngine engine,
+							final String value,RequestMethod requestMethod) {
 		this.clazz = clazz;
 		this.method = method;
 		this.engine = engine;
 		this.value = value;
+		this.requestMethod=requestMethod;
 	}
 	/**
 	 * 根据URL以及提交方式解析出对应的Mapping
@@ -62,5 +66,16 @@ class MyRequestMapping {
 				return item.getValue();
 
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		return "MyRequestMapping{" +
+				"clazz=" + clazz +
+				", method=" + method +
+				", requestMethod=" + requestMethod +
+				", value='" + value + '\'' +
+				", engine=" + engine +
+				'}';
 	}
 }
