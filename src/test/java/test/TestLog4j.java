@@ -5,9 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.junit.Test;
 
 public class TestLog4j {
+    Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
+
     @Test
     public void test01() {
-        Logger logger = LogManager.getLogger(LogManager.ROOT_LOGGER_NAME);
         logger.trace("trace level");
         logger.debug("debug level");
         logger.info("info level");
@@ -15,7 +16,17 @@ public class TestLog4j {
         logger.error("error level");
         logger.fatal("fatal level");
 
-
-
     }
+    @Test
+    public void test02() {
+        StringBuilder sb=new StringBuilder();
+        sb.append("server start\n");
+        sb.append("    -       -     ---     \n");
+        sb.append("  -----    --  ---------    \n");
+        sb.append("   - -      -     -   -         Server    \n");
+        sb.append("  -   -    -    -     -    \n");
+        sb.append(" -     -   ---------------     \n");
+        logger.info(sb.toString());
+    }
+
 }
