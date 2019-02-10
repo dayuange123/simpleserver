@@ -1,9 +1,12 @@
 package club.dayuange.scanner;
 
+import club.dayuange.annotation.CoreDeal;
 import club.dayuange.entry.DefaultListen;
 import club.dayuange.entry.MyRequestMapping;
 import club.dayuange.entry.SimpleProperties;
 import club.dayuange.exection.CheckExection;
+import club.dayuange.mypacket.filter.Filter;
+import club.dayuange.mypacket.filter.FilterAnnotationHanlder;
 import club.dayuange.utils.CheckAccess;
 import club.dayuange.utils.LoggerInitialization;
 import org.apache.logging.log4j.Logger;
@@ -22,10 +25,16 @@ public class MainStartup {
     private static SimpleProperties properties;
     private static Logger logger = LoggerInitialization.logger;
     private static LifeListern lifeListern = new DefaultListen();
-    private static List<Object> strings = new ArrayList<Object>();
-    private static List<Object> classes = new ArrayList<Object>();
+    private static List<Class> strings = new ArrayList<Class>();
+    private static List<Class> classes = new ArrayList<Class>();
+    private static List<Class> filter = new ArrayList<Class>();
     private static ClassLoader classLoader = null;
-    public static Map<String, MyRequestMapping> map=new HashMap<String, MyRequestMapping>();
+    public static Map<String, MyRequestMapping> map = new HashMap<String, MyRequestMapping>();
+
+    public static List<Class> getFilter() {
+        return filter;
+    }
+
     public static Integer init(ClassLoader c) throws IOException, ClassNotFoundException {
         //首先加载配置类
         classLoader = c;
@@ -42,26 +51,25 @@ public class MainStartup {
             LoggerInitialization.printLogo();
         }
         //扫描配置类 将扫描的类加入到List。
-        scan.doScan(properties.getConfiguration(), strings, true);
+        scan.doScan(properties.getConfiguration(), strings, filter);
         //执行声明周期方法
         preInit();
         //扫描controller,加载所有的
-        scan.doScan(properties.getScannerPacket(), classes, false);
+        scan.doScan(properties.getScannerPacket(), null, classes);
         //初始化所有的 requestmapping
-        ScannerRequestMapping requestMapping=new ScannerRequestMapping();
-        requestMapping.doScan(classes,map);
-       // logger.info(map);
+        ScannerRequestMapping requestMapping = new ScannerRequestMapping();
+        requestMapping.doScan(classes, map);
+        // logger.info(map);
         //扫描结束 启动服务器
         return properties.getPort();
 
     }
 
     private static void preInit() {
-        if (strings != null && strings.size() != 0) {
-            for (Object string : strings) {
+        if (strings.size() > 0) {
+            for (Class c : strings) {
                 try {
-                    Class<?> aClass = classLoader.loadClass((String) string);
-                    LifeListern lifeListern = (LifeListern) aClass.newInstance();
+                    LifeListern lifeListern = (LifeListern) c.newInstance();
                     lifeListern.preInit();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -70,5 +78,10 @@ public class MainStartup {
         } else {
             lifeListern.preInit();
         }
+        FilterAnnotationHanlder.initAllFilter();
+        Map<String, Filter> nameAndClass=FilterAnnotationHanlder.nameAndClass;
+        //这里执行filter的生命周期方法
+
+
     }
 }

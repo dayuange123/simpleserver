@@ -16,11 +16,11 @@ public class ScannerRequestMapping {
     private Logger logger = LoggerInitialization.logger;
 
 
-    public void doScan(List<Object> classes, Map<String, MyRequestMapping> map) {
+    public void doScan(List<Class> classes, Map<String, MyRequestMapping> map) {
         Map<String, MyRequestMapping> map1 = map;
-        for (Object aClass : classes) {
+        for (Class aClass : classes) {
             logger.info("find CoreDeal classes:"+classes);
-            Class c = (Class) aClass;
+            Class c =  aClass;
             Method[] methods = c.getMethods();
             for (Method method : methods) {
                 Annotation[] da = method.getDeclaredAnnotations();

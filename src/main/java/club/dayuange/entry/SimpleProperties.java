@@ -1,5 +1,8 @@
 package club.dayuange.entry;
 
+/**
+ * 配置类的实体
+ */
 public class SimpleProperties {
 
     private final Integer port;

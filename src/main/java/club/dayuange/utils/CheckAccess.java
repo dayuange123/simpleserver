@@ -25,4 +25,8 @@ public class CheckAccess {
         QueryStringDecoder decoder = new QueryStringDecoder(request.uri());
         return decoder.path().substring(1);
     }
+
+    public static boolean checkMapNuLL(Map map) {
+        return map == null;
+    }
 }

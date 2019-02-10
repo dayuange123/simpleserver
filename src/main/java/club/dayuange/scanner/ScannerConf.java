@@ -1,6 +1,7 @@
 package club.dayuange.scanner;
 
 import club.dayuange.annotation.CoreDeal;
+import club.dayuange.annotation.FilterCnf;
 import club.dayuange.entry.SimpleProperties;
 import club.dayuange.utils.LoggerInitialization;
 import club.dayuange.utils.StringUtils;
@@ -62,12 +63,12 @@ public class ScannerConf {
     }
 
 
-    public void doScan(final String basePackage, List<Object> strings, boolean ignoreAnn) throws IOException, ClassNotFoundException {
+    public void doScan(final String basePackage, List<Class> ordClass, List<Class> annotationList) throws IOException, ClassNotFoundException {
         if (basePackage == null) return;
         final String splashPath = StringUtils.dotToSplash(basePackage);
         final URL url = cl.getResource(splashPath);
         String filePath = StringUtils.getRootPath(url);
-        List<String> list ;
+        List<String> list;
         list = new ArrayList<String>();
         if (url == null)
             return;
@@ -88,25 +89,37 @@ public class ScannerConf {
         for (String name : list) {
             //是不是一个class
             if (isClassFile(name)) {
-                if (!ignoreAnn) {
-                    String clazz = toFullyQualifiedName(name, basePackage);
-                 //   System.out.println(clazz);
-                    Class<?> aClass = cl.loadClass(clazz);
-                    Annotation[] annotations = aClass.getAnnotations();
+                String clazz = toFullyQualifiedName(name, basePackage);
+                //   System.out.println(clazz);
+                Class<?> aClass = cl.loadClass(clazz);
+                Annotation[] annotations = aClass.getAnnotations();
+                if (annotations.length>0) {
                     for (Annotation annotation : annotations) {
                         if (annotation instanceof CoreDeal) {
-                            strings.add(aClass);
+                            annotationList.add(aClass);
+                            break;
+                        }
+                        if (annotation instanceof FilterCnf) {
+                            annotationList.add(aClass);
                             break;
                         }
                     }
-                } else
-                    strings.add(toFullyQualifiedName(name, basePackage));
+                } else {
+                    if (ordClass != null)
+                        ordClass.add(aClass);
+                }
+
             } else {
-                doScan(basePackage + "." + name, strings, ignoreAnn);
+                doScan(basePackage + "." + name, ordClass, annotationList);
             }
         }
         if (logger.isDebugEnabled()) {
-            for (Object n : strings) {
+            if (ordClass != null) {
+                for (Object n : ordClass) {
+                    logger.debug("find {}", n);
+                }
+            }
+            for (Object n : annotationList) {
                 logger.debug("find {}", n);
             }
         }

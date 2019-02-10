@@ -1,18 +1,23 @@
 package club.dayuange.hanlder;
 
-import club.dayuange.entry.MyRequestMapping;
+import club.dayuange.exection.RequestTypeExection;
+import club.dayuange.mypacket.request.DefultRequest;
+import club.dayuange.mypacket.request.SimpleRequest;
+import club.dayuange.mypacket.response.DefultResponse;
+import club.dayuange.mypacket.response.SimpleResponse;
 import club.dayuange.scanner.MainStartup;
 import club.dayuange.utils.CheckAccess;
 import club.dayuange.utils.WebUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
 
-import javax.swing.text.rtf.RTFEditorKit;
 import java.net.URL;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.*;
 
+/**
+ * 核心的请求处理
+ */
 public class DealRequest {
     ClassLoader c1 = getClass().getClassLoader();
 
@@ -28,15 +33,31 @@ public class DealRequest {
      * 8.通过用户的返回结果对 请求进行响应。这时需要通过用户结果进行响应。
      *
      * @param ctx
-     * @param request
+     * @param fullHttpRequest
      */
-    protected void mainDealRequest(ChannelHandlerContext ctx, FullHttpRequest request) {
-        if (!request.decoderResult().isSuccess()) {
+    protected void mainDealRequest1(ChannelHandlerContext ctx, FullHttpRequest fullHttpRequest) throws RequestTypeExection {
+        if (!fullHttpRequest.decoderResult().isSuccess()) {
             WebUtils.sendError(ctx, BAD_REQUEST);
             return;
         }
+        SimpleRequest request = null;
+        SimpleResponse response = new DefultResponse(request,ctx);
+        request = new DefultRequest(fullHttpRequest, WebUtils.getParameter0(fullHttpRequest), response);
+        //获取filter
+        WebUtils.dealFilter(request,response,ctx);
         //对路径查找判断是否存在
-        String uri = CheckAccess.dealUri(request);
+    }
+
+    /**
+     * filter完事之后的回调。
+     * @param request
+     * @param response
+     * @param ctx
+     */
+    public  void mainDealRequest2(SimpleRequest request,SimpleResponse response,ChannelHandlerContext ctx){
+        DefultRequest request1= (DefultRequest) request;
+        FullHttpRequest fullHttpRequest = request1.getRequest();
+        String uri = CheckAccess.dealUri(fullHttpRequest);
         int res = isEffectivePath(uri);
         if (res == 0) {
             WebUtils.senNotFound(ctx, NOT_FOUND);
@@ -45,7 +66,7 @@ public class DealRequest {
             WebUtils.sendHtml(c1.getResource(uri.equals("") ? "index.html" : uri), ctx);
             return;
         }
-        //这里就要对请求进行处理了
+
     }
 
     /**
