@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DefultResponse implements SimpleResponse {
-    public List<String> cookies = new ArrayList<>();
+    public List<Cookie> cookies = new ArrayList<>();
     private  SimpleRequest request;
     private final ChannelHandlerContext context;
 
@@ -44,13 +44,16 @@ public class DefultResponse implements SimpleResponse {
 
     @Override
     public void addCookie(Cookie cookie) {
-        ClientCookieEncoder encoder = ClientCookieEncoder.STRICT;
-        String jsessionid = encoder.encode(cookie);
-        cookies.add(jsessionid);
+
+        cookies.add(cookie);
     }
 
     @Override
     public void write(String s) {
         WebUtils.writeJson(context,s);
+    }
+
+    public List<Cookie> getCookies() {
+        return cookies;
     }
 }

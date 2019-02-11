@@ -1,5 +1,6 @@
 package club.dayuange.mypacket.request;
 
+import club.dayuange.mypacket.response.DefultResponse;
 import club.dayuange.mypacket.response.SimpleResponse;
 import club.dayuange.mypacket.session.HttpSession;
 import club.dayuange.mypacket.session.SessionManner;
@@ -62,9 +63,12 @@ public class DefultRequest implements SimpleRequest {
     @Override
     public Cookie[] getCookies() {
         String s = request.headers().get(COOKIE);
-        if (s == null) return null;
+
         ServerCookieDecoder cookieDecoder = ServerCookieDecoder.STRICT;
-        Set<Cookie> decode = cookieDecoder.decode(s);
+        Set<Cookie> decode = new HashSet<>();
+        if (s != null)
+            decode = cookieDecoder.decode(s);
+        decode.addAll(((DefultResponse) response).cookies);
         Cookie[] cookies = new Cookie[decode.size()];
         int i = 0;
         for (Cookie cookie : decode) {
@@ -77,13 +81,20 @@ public class DefultRequest implements SimpleRequest {
     public HttpSession getSession() {
         //从cookies容器中获取JSESSIONID  对应的值，
         Cookie[] cookies = getCookies();
+
         String sessionId = null;
-        for (Cookie cookie : cookies) {
-            if (cookie.name().equals("JSESSIONID"))
-                sessionId = cookie.value();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.name().equals("JSESSIONID"))
+                    sessionId = cookie.value();
+            }
         }
         return SessionManner.getSession(sessionId, this, response);
     }
 
+    @Override
+    public Map<String, Object> getAttributes() {
+        return attributeMap;
+    }
 
 }

@@ -1,8 +1,8 @@
 package club.dayuange.hanlder;
 
 import club.dayuange.annotation.Respondbody;
+import club.dayuange.engine.VelocityAnalysis;
 import club.dayuange.entry.MyRequestMapping;
-import club.dayuange.exection.RequestTypeExection;
 import club.dayuange.mypacket.request.DefultRequest;
 import club.dayuange.mypacket.request.SimpleRequest;
 import club.dayuange.mypacket.response.DefultResponse;
@@ -44,6 +44,7 @@ public class DealRequest {
         }
         SimpleRequest request = null;
         SimpleResponse response = new DefultResponse(request, ctx);
+      //  System.out.println(response);
         request = new DefultRequest(fullHttpRequest, WebUtils.getParameter0(fullHttpRequest), response);
         //获取filter
         ((DefultResponse) response).setRequest(request);
@@ -67,7 +68,7 @@ public class DealRequest {
             WebUtils.senNotFound(ctx, NOT_FOUND);
             return;
         } else if (res == 1) {
-            WebUtils.sendHtml(c1.getResource(uri.equals("") ? "index.html" : uri), ctx);
+            WebUtils.sendHtml(uri, ctx, request,response);
             return;
         }
         //将参数封装到对应的方法上。
@@ -77,11 +78,15 @@ public class DealRequest {
         Respondbody annotation = method.getAnnotation(Respondbody.class);
         if (annotation != null && annotation.value() == true) {
             response.write(o.toString());
+            return;
         }
-
-        //返回模板页面，解析模板
-
-
+        //判断路径合法
+        String string = o.toString();
+        if(!string.startsWith("/")){
+            fullHttpRequest.setUri("/"+string);
+        }
+        else fullHttpRequest.setUri(string);
+        mainDealRequest2(request, response, ctx);
     }
 
     /**
@@ -102,7 +107,7 @@ public class DealRequest {
         if (resource != null) {
             return 1;
         }
-        //从 所有的map中找路径
+        //从所有的map中找路径
         if (MainStartup.map.containsKey(path)) return 2;
         return 0;
     }

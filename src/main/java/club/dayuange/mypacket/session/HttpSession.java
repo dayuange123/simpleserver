@@ -1,5 +1,7 @@
 package club.dayuange.mypacket.session;
 
+import java.util.Map;
+
 public interface HttpSession {
     long getCreationTime();
 
@@ -17,4 +19,6 @@ public interface HttpSession {
     long getEffectiveTime();
 
     boolean isNew();
+
+    Map<String, Object> getAttributes();
 }

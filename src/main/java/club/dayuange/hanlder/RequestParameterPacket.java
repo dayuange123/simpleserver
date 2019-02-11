@@ -50,9 +50,7 @@ public class RequestParameterPacket {
         }
         //获取参数
         Object[] objects = getAllParamter(ptn, request1, response);
-//        for (Object object : objects) {
-//            System.out.println(object);
-//        }
+
         return method.invoke(o, objects);
     }
 
@@ -82,14 +80,12 @@ public class RequestParameterPacket {
                     String parameter = request1.getParameter(field.getName());
                     if (parameter != null) {
                         field.setAccessible(true);
-                        // System.out.println(field.getType());
                         if (field.getType().isPrimitive() || StringUtils.isPacketType(field.getType())) {
                             Object returnObj = ConvertUtils.convert(parameter, field.getType());
                             if (!returnObj.toString().equals(parameter)) {
                                 throw new ClassCastException("string to " + returnObj.getClass() + "\t" +
                                         "check your par:" + field.getName());
                             }
-                            // System.out.println(returnObj);
                             field.set(obj, returnObj);
                         }
                     }

@@ -58,12 +58,18 @@ public class DefultSession implements HttpSession {
     }
 
     @Override
+    public Map<String, Object> getAttributes() {
+        return attributeMap;
+    }
+
+    @Override
     public String toString() {
         return "DefultSession{" +
                 "createTime=" + createTime +
                 ", lastAccessedTime=" + lastAccessedTime +
                 ", id='" + id + '\'' +
                 ", effectiveTime=" + effectiveTime +
+                ", attributeMap=" + attributeMap +
                 '}';
     }
 }

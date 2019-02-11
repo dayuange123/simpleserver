@@ -1,10 +1,9 @@
 package club.dayuange.utils;
 
-import club.dayuange.corecontainer.CacheStaticHtml;
+import club.dayuange.engine.VelocityAnalysis;
 import club.dayuange.exection.RequestTypeExection;
 import club.dayuange.hanlder.WebServerHandler;
 import club.dayuange.mypacket.filter.DefultFilterChain;
-import club.dayuange.mypacket.request.DefultRequest;
 import club.dayuange.mypacket.request.SimpleRequest;
 import club.dayuange.mypacket.response.DefultResponse;
 import club.dayuange.mypacket.response.SimpleResponse;
@@ -13,6 +12,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
@@ -32,18 +32,24 @@ public class WebUtils {
     //错误状态处理方法 根据 状态吗 进行处理。
     public static void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
         ByteBuf byteBuf = Unpooled.copiedBuffer("<h1>Failure: " + status + "</h1>\r\n", CharsetUtil.UTF_8);
-        respondHtml(ctx, byteBuf, status);
+        respondHtml(ctx, byteBuf, status, null);
     }
 
     public static void senNotFound(ChannelHandlerContext ctx, HttpResponseStatus status) {
         ByteBuf byteBuf = Unpooled.copiedBuffer("<h1>Failure: " + status + "</h1>\r\n", CharsetUtil.UTF_8);
-        respondHtml(ctx, byteBuf, status);
+        respondHtml(ctx, byteBuf, status, null);
     }
 
-    private static void respondHtml(ChannelHandlerContext ctx, ByteBuf byteBuf, HttpResponseStatus status) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status, byteBuf);
-        response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+    private static void respondHtml(ChannelHandlerContext ctx, ByteBuf byteBuf, HttpResponseStatus status, SimpleResponse response) {
+        FullHttpResponse fullHttpResponse = new DefaultFullHttpResponse(HTTP_1_1, status, byteBuf);
+        if (response != null) {
+            ClientCookieEncoder encoder = ClientCookieEncoder.STRICT;
+            String jsessionid = encoder.encode(((DefultResponse) response).cookies);
+            if (jsessionid != null)
+                fullHttpResponse.headers().set(HttpHeaderNames.SET_COOKIE, jsessionid);
+        }
+        fullHttpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+        ctx.writeAndFlush(fullHttpResponse).addListener(ChannelFutureListener.CLOSE);
     }
 
 
@@ -56,25 +62,29 @@ public class WebUtils {
     }
 
     public static void writeJson(ChannelHandlerContext context, String s) {
-        FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK,Unpooled.copiedBuffer(s.getBytes()));
+        FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.copiedBuffer(s.getBytes()));
         httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
         context.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
     }
 
 
+    public static void sendStringHtml(String string, ChannelHandlerContext ctx) {
+        byte[] bytes = string.getBytes();
+        respondHtml(ctx, Unpooled.copiedBuffer(Arrays.copyOf(bytes, bytes.length)), HttpResponseStatus.OK, null);
 
+    }
 
-
-    public static void sendHtml(URL uri, ChannelHandlerContext ctx) {
-        String path = uri.getFile();
-
+    public static void sendHtml(String uri, ChannelHandlerContext ctx, SimpleRequest request, SimpleResponse response) {
+        if (uri.length() == 0)
+            uri = "index.html";
+        String html = VelocityAnalysis.resloveHtml(uri, request);
         //这里可以优化的就是 将静态页面缓存起来
-        byte[] bytes = CacheStaticHtml.getBytes(path);
-        if (bytes == null) {
-            bytes = getBytes(uri.getFile());
-            CacheStaticHtml.put(path, bytes);
-        }
-        respondHtml(ctx, Unpooled.copiedBuffer(Arrays.copyOf(bytes, bytes.length)), HttpResponseStatus.OK);
+        // byte[] bytes = CacheStaticHtml.getBytes(path);
+//        if (bytes == null) {
+//            bytes = getBytes(uri.getFile());
+//            CacheStaticHtml.put(uri, bytes);
+//        }
+        respondHtml(ctx, Unpooled.copiedBuffer(Arrays.copyOf(html.getBytes(), html.getBytes().length)), HttpResponseStatus.OK, response);
     }
 
     public static byte[] getBytes(String filePath) {
