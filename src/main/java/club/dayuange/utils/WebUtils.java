@@ -4,7 +4,9 @@ import club.dayuange.corecontainer.CacheStaticHtml;
 import club.dayuange.exection.RequestTypeExection;
 import club.dayuange.hanlder.WebServerHandler;
 import club.dayuange.mypacket.filter.DefultFilterChain;
+import club.dayuange.mypacket.request.DefultRequest;
 import club.dayuange.mypacket.request.SimpleRequest;
+import club.dayuange.mypacket.response.DefultResponse;
 import club.dayuange.mypacket.response.SimpleResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -33,7 +35,6 @@ public class WebUtils {
         respondHtml(ctx, byteBuf, status);
     }
 
-
     public static void senNotFound(ChannelHandlerContext ctx, HttpResponseStatus status) {
         ByteBuf byteBuf = Unpooled.copiedBuffer("<h1>Failure: " + status + "</h1>\r\n", CharsetUtil.UTF_8);
         respondHtml(ctx, byteBuf, status);
@@ -44,6 +45,25 @@ public class WebUtils {
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
+
+
+    public static void sendRedirect(ChannelHandlerContext ctx, String url, DefultResponse defultResponse) {
+        FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FOUND);
+        httpResponse.headers().set(HttpHeaderNames.LOCATION, url);
+        httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
+        ctx.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+
+    }
+
+    public static void writeJson(ChannelHandlerContext context, String s) {
+        FullHttpResponse httpResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK,Unpooled.copiedBuffer(s.getBytes()));
+        httpResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, "application/json; charset=UTF-8");
+        context.writeAndFlush(httpResponse).addListener(ChannelFutureListener.CLOSE);
+    }
+
+
+
+
 
     public static void sendHtml(URL uri, ChannelHandlerContext ctx) {
         String path = uri.getFile();
@@ -108,7 +128,7 @@ public class WebUtils {
         return parmMap;
     }
 
-    public static void dealFilter(SimpleRequest request, SimpleResponse response, ChannelHandlerContext ctx) {
+    public static void dealFilter(SimpleRequest request, SimpleResponse response, ChannelHandlerContext ctx) throws Exception {
         /**
          * 这里 匹配所有的 过滤器，如果符合 直接调用过滤器的doFilter方法，如果是最后一个，
          */

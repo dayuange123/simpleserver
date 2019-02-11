@@ -42,30 +42,25 @@ public class MyRequestMapping {
 		this.value = value;
 		this.requestMethod=requestMethod;
 	}
-	/**
-	 * 根据URL以及提交方式解析出对应的Mapping
-	 * 
-	 * @param request
-	 * @param uri
-	 * @return
-	 */
-	static MyRequestMapping get(final HttpRequest request, final String uri) {
-		MyRequestMapping mapping = null;
-		return mapping;
-	}
-	
-	/**
-	 * 通配URL遍历
-	 * @param uri
-	 * @param mapping
-	 * @return
-	 */
-	private static MyRequestMapping get(String uri, Map<String, MyRequestMapping> mapping) {
-		for (Entry<String, MyRequestMapping> item : mapping.entrySet())
-			if (uri.matches(item.getKey()))
-				return item.getValue();
 
-		return null;
+	public Class<?> getClazz() {
+		return clazz;
+	}
+
+	public Method getMethod() {
+		return method;
+	}
+
+	public RequestMethod getRequestMethod() {
+		return requestMethod;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public PageEngine getEngine() {
+		return engine;
 	}
 
 	@Override

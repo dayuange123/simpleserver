@@ -1,7 +1,9 @@
 package club.dayuange.mypacket.response;
 
 import club.dayuange.mypacket.request.SimpleRequest;
+import club.dayuange.utils.WebUtils;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 
@@ -11,8 +13,16 @@ import java.util.List;
 
 public class DefultResponse implements SimpleResponse {
     public List<String> cookies = new ArrayList<>();
-    private final SimpleRequest request;
+    private  SimpleRequest request;
     private final ChannelHandlerContext context;
+
+    public SimpleRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(SimpleRequest request) {
+        this.request = request;
+    }
 
     public DefultResponse(SimpleRequest request, ChannelHandlerContext ctx) {
         this.request = request;
@@ -23,9 +33,13 @@ public class DefultResponse implements SimpleResponse {
         return context;
     }
 
+    /**
+     *
+     * @param var1
+     */
     @Override
-    public void sendRedirect(String var1) throws IOException {
-
+    public void sendRedirect(String var1) {
+        WebUtils.sendRedirect(context, var1,this);
     }
 
     @Override
@@ -37,6 +51,6 @@ public class DefultResponse implements SimpleResponse {
 
     @Override
     public void write(String s) {
-
+        WebUtils.writeJson(context,s);
     }
 }

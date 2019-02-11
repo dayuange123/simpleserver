@@ -68,11 +68,13 @@ public class MainStartup {
     private static void preInit() {
         if (strings.size() > 0) {
             for (Class c : strings) {
-                try {
-                    LifeListern lifeListern = (LifeListern) c.newInstance();
-                    lifeListern.preInit();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if(c.isAssignableFrom(LifeListern.class)){
+                    try {
+                        LifeListern lifeListern = (LifeListern) c.newInstance();
+                        lifeListern.preInit();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         } else {
@@ -81,7 +83,6 @@ public class MainStartup {
         FilterAnnotationHanlder.initAllFilter();
         Map<String, Filter> nameAndClass=FilterAnnotationHanlder.nameAndClass;
         //这里执行filter的生命周期方法
-
 
     }
 }

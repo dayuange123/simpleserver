@@ -40,7 +40,11 @@ public class DefultFilterChain implements FilterChain {
             if (Pattern.matches(string, "/" + StringUtils.replaceD2comma(uri))) {
                 Filter filter = nameAndClass.get(s1);
                 filter.doFilter(request, response, this);
-                break;
+                //如果这里返回的时候
+                if (nameAndClass.size() != index) {
+                    //说明未放行
+                }
+                return;
             }
         }
         //没有匹配到 进行下一个的匹配

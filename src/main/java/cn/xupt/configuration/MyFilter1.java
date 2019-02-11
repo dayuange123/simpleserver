@@ -7,7 +7,7 @@ import club.dayuange.mypacket.filter.FilterConfig;
 import club.dayuange.mypacket.request.SimpleRequest;
 import club.dayuange.mypacket.response.SimpleResponse;
 
-@FilterCnf(value = {"/"},name = "testFilter1")
+//@FilterCnf(value = {"/"},name = "testFilter1")
 public class MyFilter1 implements Filter {
     @Override
     public void init(FilterConfig config) {

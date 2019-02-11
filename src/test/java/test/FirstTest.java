@@ -5,6 +5,7 @@ import club.dayuange.server.WebApp;
 import club.dayuange.server.WebServer;
 import club.dayuange.utils.StringUtils;
 import io.netty.bootstrap.ServerBootstrap;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.junit.Test;
 
 import java.net.URL;
@@ -29,6 +30,8 @@ public class FirstTest {
 //        String uri = "/123html";
 
        // System.out.println(uri.matches(s1));
+        int a=0;
+
 
     }
 
@@ -38,5 +41,12 @@ public class FirstTest {
 
         System.out.println(aClass.getAnnotations()[0] instanceof FilterCnf);
 
+    }
+    @Test
+    public void test03() throws Exception {
+        System.out.println(StringUtils.isPacketType(Byte.class));
+        Object returnObj = ConvertUtils.convert("asad", boolean.class);
+        System.out.println(returnObj.toString());
+        System.out.println("aa".toString());
     }
 }

@@ -26,7 +26,9 @@ public class CheckAccess {
         return decoder.path().substring(1);
     }
 
-    public static boolean checkMapNuLL(Map map) {
+    public static boolean checkMapNuLL(Map map,Exception e) throws Exception {
+        if(map==null&&e!=null)
+            throw e;
         return map == null;
     }
 }
