@@ -1,9 +1,11 @@
 package club.dayuange.hanlder;
 
 import club.dayuange.utils.LoggerInitialization;
+import club.dayuange.utils.WebUtils;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.apache.logging.log4j.Logger;
 
 /**
@@ -17,8 +19,10 @@ public class WebServerHandler extends SimpleChannelInboundHandler<FullHttpReques
 	 * 500页面
 	 */
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
-		if (ctx.channel().isActive());
+		logger.error(cause.getMessage());
+		if (ctx.channel().isActive()){
+			WebUtils.sendError(ctx, HttpResponseStatus.BAD_GATEWAY);
+		}
 	}
 	/**
 	 * 处理

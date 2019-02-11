@@ -7,7 +7,7 @@ import club.dayuange.mypacket.filter.FilterConfig;
 import club.dayuange.mypacket.request.SimpleRequest;
 import club.dayuange.mypacket.response.SimpleResponse;
 
-//@FilterCnf(value = {"/123.*"},name = "testFilter")
+@FilterCnf(value = {"/123.*"},name = "testFilter")
 public class MyFilter implements Filter {
     @Override
     public void init(FilterConfig config) {
@@ -21,7 +21,6 @@ public class MyFilter implements Filter {
         response.write("{\"1\":12}");
      //   chain.doFilter(request,response);
     }
-
 
 
     @Override
